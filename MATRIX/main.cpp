@@ -45,6 +45,17 @@ public:
 		*this = other;
 		cout << "Copy_Constructor:\t" << this << endl;
 	}
+	Matrix(Matrix&& other)
+	{
+		/*this->rows = other.rows;
+		this->cols = other.cols;
+		this->arr = nullptr;
+		cout << "Move_Constructor:\t" << this << endl;
+		other.rows = 0;
+		other.cols = 0;
+		other.arr = nullptr;*/
+		*this = std::move(other);
+	}
 	~Matrix()
 	{
 		for (int i = 0; i < rows; i++)
@@ -58,7 +69,15 @@ public:
 		cout << "Destructor:\t" << this << endl;
 	}
 
-	//                               OPERATORS:
+	//                 OPERATORS:
+	const int* operator[](int i)const
+	{
+		return arr[i];
+	}
+	int* operator[](int i)
+	{
+		return arr[i];
+	}
 	Matrix& operator=(const Matrix& other)
 	{
 		if (this == &other)return *this;
@@ -74,14 +93,17 @@ public:
 		cout << "Copy_Assignment:\t" << this << endl;
 		return *this;
 	}
-	const int* operator[](int i)const
+	Matrix& operator=(Matrix&& other)
 	{
-		return arr[i];
+		this->rows = other.rows;
+		this->cols = other.cols;
+		this->arr = other.arr;
+		other.arr = nullptr;
+		other.rows = 0;
+		other.cols = 0;
+		return *this;
 	}
-	int* operator[](int i)
-	{
-		return arr[i];
-	}
+
 
 	//                              METHODS:
 	void print()const
@@ -98,6 +120,45 @@ public:
 	}
 };
 
+Matrix operator+(const Matrix& left, const Matrix& right)
+{
+	if ((left.get_cols() != right.get_cols()) || 
+		(left.get_rows() != right.get_rows()))
+		return Matrix();
+	Matrix C(left.get_rows(), left.get_cols());
+	for (int i = 0; i < left.get_rows(); i++)
+	{
+		for (int j = 0; j < left.get_cols(); j++)
+		{
+			C[i][j] = left[i][j] + right[i][j];
+		}
+	}
+	return C;
+}
+Matrix operator-(const Matrix& left, const Matrix& right)
+{
+	Matrix C(right.get_rows(), right.get_cols());
+	for (int i = 0; i < right.get_rows(); i++)
+	{
+		for (int j = 0; j < right.get_cols(); j++)
+		{
+			C[i][j] = right[i][j] - left[i][j];
+		}
+	}
+	return C;
+}
+Matrix operator*(const Matrix& left, const Matrix& right)
+{
+	Matrix C(left.get_rows(), left.get_cols());
+	for (int i = 0; i < left.get_rows(); i++)
+	{
+		for (int j = 0; j < left.get_cols(); j++)
+		{
+			C[i][j] = left[i][j] * right[i][j];
+		}
+	}
+	return C;
+}
 
 void main()
 {
@@ -115,4 +176,11 @@ void main()
 	Matrix B;
 	B = A; //Copy Assignment
 	B.print();
+	Matrix C = A + B;
+	C.print();
+	C = A - B;
+	C.print();
+	C = A * B;
+	C.print();
+
 }
